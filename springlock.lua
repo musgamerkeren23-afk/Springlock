@@ -1,211 +1,231 @@
--- 💀 SPRING BONNIE FULL SYSTEM
+-- 💀 SPRINGLOCK V3 + KEY SYSTEM
 
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 local player = game.Players.LocalPlayer
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
 
-local char = player.Character or player.CharacterAdded:Wait()
-local hum = char:WaitForChild("Humanoid")
-local hrp = char:WaitForChild("HumanoidRootPart")
+local correctKey = "Springlock_Fails"
+local savedKey = "SPRINGLOCK_KEY_SAVE"
 
 --------------------------------------------------
--- 🐰 SUIT SPRING BONNIE
+-- 🔐 CHECK SAVE
 --------------------------------------------------
-for _,v in pairs(char:GetDescendants()) do
-    if v:IsA("BasePart") then
-        v.Color = Color3.fromRGB(255,204,0)
-        v.Material = Enum.Material.SmoothPlastic
+local hasKey = false
+
+pcall(function()
+    if readfile and isfile and isfile(savedKey..".txt") then
+        if readfile(savedKey..".txt") == correctKey then
+            hasKey = true
+        end
     end
-end
-
--- hapus face
-local head = char:FindFirstChild("Head")
-if head and head:FindFirstChild("face") then
-    head.face:Destroy()
-end
+end)
 
 --------------------------------------------------
--- 🌫️ AURA
---------------------------------------------------
-local aura = Instance.new("ParticleEmitter", hrp)
-aura.Color = ColorSequence.new(Color3.fromRGB(255,204,0))
-aura.Rate = 10
-aura.Size = NumberSequence.new(0.6)
-
---------------------------------------------------
--- 🎛️ MODE
---------------------------------------------------
-local mode = "KIDS"
-
---------------------------------------------------
--- 📱 GUI
+-- 📱 GUI KEY
 --------------------------------------------------
 local gui = Instance.new("ScreenGui",player.PlayerGui)
 
-local frame = Instance.new("Frame",gui)
-frame.Size = UDim2.new(0,260,0,230)
-frame.Position = UDim2.new(0.4,0,0.3,0)
-frame.BackgroundColor3 = Color3.fromRGB(20,0,0)
-frame.Active = true
+local keyFrame = Instance.new("Frame",gui)
+keyFrame.Size = UDim2.new(0,260,0,180)
+keyFrame.Position = UDim2.new(0.4,0,0.3,0)
+keyFrame.BackgroundColor3 = Color3.fromRGB(20,0,0)
 
-local title = Instance.new("TextLabel",frame)
+local title = Instance.new("TextLabel",keyFrame)
 title.Size = UDim2.new(1,0,0,30)
-title.Text = "💀 SPRING BONNIE"
+title.Text = "🔐 ENTER KEY"
 title.TextColor3 = Color3.fromRGB(255,0,0)
 title.BackgroundTransparency = 1
 
-local status = Instance.new("TextLabel",frame)
-status.Size = UDim2.new(1,0,0,40)
-status.Position = UDim2.new(0,0,0.3,0)
-status.Text = "STABLE"
+local box = Instance.new("TextBox",keyFrame)
+box.Size = UDim2.new(0.8,0,0,40)
+box.Position = UDim2.new(0.1,0,0.4,0)
+box.PlaceholderText = "ENTER KEY..."
+
+local status = Instance.new("TextLabel",keyFrame)
+status.Size = UDim2.new(1,0,0,30)
+status.Position = UDim2.new(0,0,0.7,0)
+status.Text = ""
 status.TextColor3 = Color3.fromRGB(255,0,0)
 status.BackgroundTransparency = 1
 
---------------------------------------------------
--- ⚙️ SETTINGS POPUP
---------------------------------------------------
-local settings = Instance.new("Frame",gui)
-settings.Size = UDim2.new(0,200,0,180)
-settings.Position = UDim2.new(0.5,-100,0.5,-90)
-settings.BackgroundColor3 = Color3.fromRGB(15,0,0)
-settings.Visible = false
-settings.Active = true
-
-local function modeBtn(name,y)
-    local b = Instance.new("TextButton",settings)
-    b.Size = UDim2.new(0.8,0,0,40)
-    b.Position = UDim2.new(0.1,0,0,y)
-    b.Text = name
-    b.TextColor3 = Color3.fromRGB(255,0,0)
-
-    b.MouseButton1Click:Connect(function()
-        mode = name
-    end)
-end
-
-modeBtn("KIDS",0.2)
-modeBtn("ADULT",0.5)
-modeBtn("MATURE",0.75)
+local enter = Instance.new("TextButton",keyFrame)
+enter.Size = UDim2.new(0.8,0,0,40)
+enter.Position = UDim2.new(0.1,0,0.55,0)
+enter.Text = "ENTER"
 
 --------------------------------------------------
--- 🎬 ANIMASI SPRINGLOCK
+-- 💀 MAIN GUI FUNCTION
 --------------------------------------------------
-local active = false
-local con
+local function loadMain()
 
-local function animate()
-    for i=1,15 do
-        hum.WalkSpeed = 0
-        task.wait(0.04)
-        hum.WalkSpeed = 5
-        task.wait(0.04)
+    keyFrame:Destroy()
+
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hum = char:WaitForChild("Humanoid")
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    --------------------------------------------------
+    -- GUI MAIN
+    --------------------------------------------------
+    local frame = Instance.new("Frame",gui)
+    frame.Size = UDim2.new(0,260,0,220)
+    frame.Position = UDim2.new(0.4,0,0.3,0)
+    frame.BackgroundColor3 = Color3.fromRGB(20,0,0)
+    frame.Active = true
+
+    local title = Instance.new("TextLabel",frame)
+    title.Size = UDim2.new(1,0,0,30)
+    title.Text = "💀 SPRINGLOCK"
+    title.TextColor3 = Color3.fromRGB(255,0,0)
+    title.BackgroundTransparency = 1
+
+    local statusText = Instance.new("TextLabel",frame)
+    statusText.Size = UDim2.new(1,0,0,40)
+    statusText.Position = UDim2.new(0,0,0.3,0)
+    statusText.Text = "STABLE"
+    statusText.TextColor3 = Color3.fromRGB(255,0,0)
+    statusText.BackgroundTransparency = 1
+
+    --------------------------------------------------
+    -- ANIMASI
+    --------------------------------------------------
+    local active = false
+    local camCon
+    local dmgCon
+
+    local function animate()
+        for i=1,25 do
+            hrp.CFrame = hrp.CFrame * CFrame.Angles(
+                math.rad(math.random(-8,8)),
+                math.rad(math.random(-8,8)),
+                0
+            )
+            hum.WalkSpeed = 0
+            task.wait(0.03)
+            hum.WalkSpeed = 6
+            task.wait(0.03)
+        end
     end
-end
 
-local function start()
-    if active then return end
-    active = true
+    local function cameraShake()
+        camCon = RunService.RenderStepped:Connect(function()
+            local cam = workspace.CurrentCamera
+            cam.CFrame *= CFrame.new(
+                math.random(-1,1)/40,
+                math.random(-1,1)/40,
+                0
+            )
+        end)
+    end
 
-    status.Text = "⚠️ FAILURE"
+    local function start()
+        if active then return end
+        active = true
 
-    animate()
+        statusText.Text = "⚠️ FAILURE"
 
-    hum.WalkSpeed = 4
-    hum.JumpPower = 0
+        animate()
+        hum.WalkSpeed = 4
+        hum.JumpPower = 0
 
-    if mode == "KIDS" then
-        Lighting.Brightness = 1
-
-    elseif mode == "ADULT" then
-        Lighting.Brightness = 0.5
-        Lighting.ClockTime = 0
-
-    elseif mode == "MATURE" then
         Lighting.Brightness = 0.2
         Lighting.ClockTime = 0
 
-        con = RunService.RenderStepped:Connect(function()
-            frame.Position = frame.Position + UDim2.new(0,math.random(-2,2),0,math.random(-2,2))
+        cameraShake()
+
+        dmgCon = RunService.RenderStepped:Connect(function()
             if hum.Health > 5 then
                 hum.Health -= 0.15
             end
         end)
     end
-end
 
---------------------------------------------------
--- RESET
---------------------------------------------------
-local function reset()
-    active = false
+    local function reset()
+        active = false
 
-    hum.WalkSpeed = 16
-    hum.JumpPower = 50
-    Lighting.Brightness = 1
+        hum.WalkSpeed = 16
+        hum.JumpPower = 50
+        Lighting.Brightness = 1
 
-    if con then con:Disconnect() end
+        if camCon then camCon:Disconnect() end
+        if dmgCon then dmgCon:Disconnect() end
 
-    status.Text = "STABLE"
-end
+        statusText.Text = "STABLE"
+    end
 
---------------------------------------------------
--- BUTTONS
---------------------------------------------------
-local trigger = Instance.new("TextButton",frame)
-trigger.Size = UDim2.new(0.9,0,0,40)
-trigger.Position = UDim2.new(0.05,0,0.55,0)
-trigger.Text = "TRIGGER"
+    --------------------------------------------------
+    -- BUTTON
+    --------------------------------------------------
+    local trigger = Instance.new("TextButton",frame)
+    trigger.Size = UDim2.new(0.9,0,0,40)
+    trigger.Position = UDim2.new(0.05,0,0.55,0)
+    trigger.Text = "TRIGGER"
+    trigger.MouseButton1Click:Connect(start)
 
-trigger.MouseButton1Click:Connect(start)
+    local resetBtn = Instance.new("TextButton",frame)
+    resetBtn.Size = UDim2.new(0.9,0,0,40)
+    resetBtn.Position = UDim2.new(0.05,0,0.75,0)
+    resetBtn.Text = "RESET"
+    resetBtn.MouseButton1Click:Connect(reset)
 
-local resetBtn = Instance.new("TextButton",frame)
-resetBtn.Size = UDim2.new(0.9,0,0,40)
-resetBtn.Position = UDim2.new(0.05,0,0.75,0)
-resetBtn.Text = "RESET"
+    --------------------------------------------------
+    -- DRAG
+    --------------------------------------------------
+    local dragging, dragStart, startPos
 
-resetBtn.MouseButton1Click:Connect(reset)
-
-local setBtn = Instance.new("TextButton",frame)
-setBtn.Size = UDim2.new(0,40,0,30)
-setBtn.Position = UDim2.new(1,-45,0,0)
-setBtn.Text = "⚙"
-
-setBtn.MouseButton1Click:Connect(function()
-    settings.Visible = not settings.Visible
-end)
-
---------------------------------------------------
--- 🖱️ DRAG FUNCTION (UNTUK SEMUA GUI)
---------------------------------------------------
-local function makeDraggable(obj)
-    local dragging, start, pos
-
-    obj.InputBegan:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
-            start = i.Position
-            pos = obj.Position
+            dragStart = input.Position
+            startPos = frame.Position
         end
     end)
 
-    obj.InputChanged:Connect(function(i)
-        if dragging then
-            local delta = i.Position - start
-            obj.Position = UDim2.new(
-                pos.X.Scale,
-                pos.X.Offset + delta.X,
-                pos.Y.Scale,
-                pos.Y.Offset + delta.Y
+    frame.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
             )
         end
     end)
 
-    obj.InputEnded:Connect(function()
-        dragging = false
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
     end)
 end
 
-makeDraggable(frame)
-makeDraggable(settings)
+--------------------------------------------------
+-- 🔐 ENTER BUTTON
+--------------------------------------------------
+enter.MouseButton1Click:Connect(function()
+    if box.Text == correctKey then
+        status.Text = "ACCESS GRANTED"
+
+        pcall(function()
+            if writefile then
+                writefile(savedKey..".txt", correctKey)
+            end
+        end)
+
+        task.wait(1)
+        loadMain()
+    else
+        status.Text = "WRONG KEY"
+    end
+end)
+
+--------------------------------------------------
+-- AUTO LOGIN
+--------------------------------------------------
+if hasKey then
+    loadMain()
+end
